@@ -1,10 +1,12 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.math.abs
 import kotlin.system.measureNanoTime
@@ -45,6 +47,14 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortTimes("input/time_in4.txt", "temp.txt") }
+        } finally {
+        }
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortTimes("input/time_in5.txt", "temp.txt") }
+        } finally {
+        }
     }
 
     protected fun sortAddresses(sortAddresses: (String, String) -> Unit) {
@@ -72,6 +82,14 @@ abstract class AbstractTaskTests : AbstractFileTests() {
             assertFileContent("temp.txt", File("input/addr_out3.txt").readLines())
         } finally {
             File("temp.txt").delete()
+        }
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortAddresses("input/addr_in4.txt", "temp.txt") }
+        } finally {
+        }
+        try {
+            assertThrows(IllegalArgumentException::class.java) { sortAddresses("input/addr_in5.txt", "temp.txt") }
+        } finally {
         }
     }
 
@@ -113,6 +131,20 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                     24.7
                     99.5
                     121.3
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    -10.4
+                    -0.6
+                    0.6
+                    11.0
                 """.trimIndent()
             )
         } finally {
@@ -272,6 +304,24 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                         41
                         32
                         32
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        5
+                        6
+                        2
+                        8
+                        9
+                        10
+                        16
+                        1
                     """.trimIndent()
             )
         } finally {
