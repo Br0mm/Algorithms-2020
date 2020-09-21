@@ -1,12 +1,12 @@
 package lesson1;
 
 import kotlin.NotImplementedError;
-import kotlin.Pair;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static java.lang.Math.abs;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -45,8 +45,8 @@ public class JavaTasks {
     память: S(N)
      */
     static public void sortTimes(String inputName, String outputName) throws IOException {
-        ArrayList<String> amTimes = new ArrayList<>();
-        ArrayList<String> pmTimes = new ArrayList<>();
+        List<String> amTimes = new ArrayList<>();
+        List<String> pmTimes = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputName)))) {
             String time = reader.readLine();
             while (time != null) {
@@ -103,7 +103,7 @@ public class JavaTasks {
     память: S(N)
      */
     static public void sortAddresses(String inputName, String outputName) throws IOException {
-        Map<String, ArrayList<String>> addressBook = new TreeMap<>(
+        Map<String, List<String>> addressBook = new TreeMap<>(
                 (o1, o2) -> {
                     String[] address1 = o1.split(" ");
                     String[] address2 = o2.split(" ");
@@ -112,7 +112,8 @@ public class JavaTasks {
                     else result = Integer.valueOf(address1[1]).compareTo(Integer.valueOf(address2[1]));
                     return result;
                 });
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputName), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(inputName), StandardCharsets.UTF_8))) {
             String address = reader.readLine();
             while (address != null) {
                 if (!address.matches("^[\\wа-яА-ЯЁё]+ [\\wа-яА-ЯЁё]+ - [\\wа-яА-ЯЁё\\-]+ \\d+$"))
@@ -134,7 +135,8 @@ public class JavaTasks {
                         writer.write(", " + v.get(i));
                     }
                     writer.write(System.getProperty("line.separator"));
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -171,30 +173,45 @@ public class JavaTasks {
      * 121.3
      */
     /*
-    время: O(N*LogN)
+    время: O(N)
     память: S(N)
      */
     static public void sortTemperatures(String inputName, String outputName) throws IOException {
-        ArrayList<Double> belowZero = new ArrayList<>();
-        ArrayList<Double> overZero = new ArrayList<>();
+        List<Integer> inputTemperature = new ArrayList<>();
+
+        int min = -2731;
+        int max = 5001;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputName)))) {
             String temperature = reader.readLine();
             while (temperature != null) {
                 String[] parts = temperature.split("\\.");
-                if (temperature.startsWith("-")) belowZero.add(Double.parseDouble(temperature));
-                else overZero.add(Double.parseDouble(temperature));
+                if (temperature.startsWith("-"))
+                    inputTemperature.add(Integer.parseInt(parts[0]) * 10 - Integer.parseInt(parts[1]));
+                else inputTemperature.add(Integer.parseInt(parts[0]) * 10 + Integer.parseInt(parts[1]));
+                if (inputTemperature.get(inputTemperature.size() - 1) < min || min == -2731)
+                    min = inputTemperature.get(inputTemperature.size() - 1);
+                if (inputTemperature.get(inputTemperature.size() - 1) > max || max == 5001)
+                    max = inputTemperature.get(inputTemperature.size() - 1);
                 temperature = reader.readLine();
             }
         }
-
-        Collections.sort(belowZero);
-        Collections.sort(overZero);
+        int[] sortedTemperature = new int[max - min + 1];
+        for (int i = 0; i <= (max - min); i++) {
+            sortedTemperature[i] = 0;
+        }
+        for (Integer number : inputTemperature) {
+            sortedTemperature[number - min]++;
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputName)))) {
-            for (Double temperature : belowZero) {
-                writer.write(temperature + System.getProperty("line.separator"));
-            }
-            for (Double temperature : overZero) {
-                writer.write(temperature + System.getProperty("line.separator"));
+            for (int i = 0; i <= (max - min); i++) {
+                for (int j = 0; j < sortedTemperature[i]; j++) {
+                    if ((-min > 0) && i < -min)
+                        writer.write("-" + abs((i + min) / 10) + "." + abs((i + min) % 10)
+                                + System.getProperty("line.separator"));
+                    else
+                        writer.write((i + min) / 10 + "." + abs((i + min) % 10)
+                                + System.getProperty("line.separator"));
+                }
             }
         }
     }
@@ -230,11 +247,11 @@ public class JavaTasks {
      */
     /*
     время: O(N)
-    память: S(N^2)
+    память: S(N)
      */
     static public void sortSequence(String inputName, String outputName) throws IOException {
         Map<Integer, Integer> dictionary = new HashMap<>();
-        ArrayList<Integer> numbers = new ArrayList<>();
+        List<Integer> numbers = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputName)))) {
             String number = reader.readLine();
             while (number != null) {
