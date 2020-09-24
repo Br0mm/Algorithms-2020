@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.io.*;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -29,8 +31,39 @@ public class JavaAlgorithms {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
-        throw new NotImplementedError();
+     /*
+     время: O(N)
+     память: S(1)
+     */
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws IOException {
+        Pair<Integer, Integer> currentBuy;
+        Pair<Integer, Integer> probableBuy;
+        Pair<Integer, Integer> currentSell;
+        int counter = 1;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputName)))) {
+            String share = reader.readLine();
+            if (!share.matches("^\\d+$")) throw new IllegalArgumentException();
+            currentBuy = new Pair<>(1,Integer.parseInt(share));
+            probableBuy = new Pair<>(1, Integer.parseInt(share));
+            currentSell = new Pair<>(1, Integer.parseInt(share));
+            share = reader.readLine();
+            while (share != null) {
+                if (!share.matches("^\\d+$")) throw new IllegalArgumentException();
+                int shareCost = Integer.parseInt(share);
+                counter++;
+
+                if (shareCost - currentBuy.getSecond() > currentSell.getSecond() - currentBuy.getSecond())
+                    currentSell = new Pair<>(counter, shareCost);
+                if (shareCost - probableBuy.getSecond() > currentSell.getSecond() - currentBuy.getSecond()) {
+                    currentBuy = new Pair<>(probableBuy.getFirst(), probableBuy.getSecond());
+                    currentSell = new Pair<>(counter, shareCost);
+                }
+                if (probableBuy.getSecond() > shareCost) probableBuy = new Pair<>(counter, shareCost);
+                share = reader.readLine();
+            }
+        }
+
+        return new Pair<>(currentBuy.getFirst(), currentSell.getFirst());
     }
 
     /**
@@ -97,8 +130,29 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    /*
+    N - длина первой строки, M - длина второй строки
+     время: O(N*M)
+     память: S(N * M)
+     */
+    static public String longestCommonSubstring(String first, String second) {
+        int[][] matrix = new int[first.length()][second.length()];
+        int maxI = -1;
+        int max = -1;
+        for (int i = 0; i < first.length(); i++)
+            for (int j = 0; j < second.length(); j++) {
+                if (first.charAt(i) == second.charAt(j)) {
+                    if (i > 0 && j > 0) matrix[i][j] = matrix[i - 1][j - 1] + 1;
+                    else matrix[i][j] = 1;
+                    if (matrix [i][j] > max) {
+                        max = matrix[i][j];
+                        maxI = i;
+                    }
+                } else matrix[i][j] = 0;
+            }
+        String result = "";
+        if (max != -1) result = first.substring(maxI - max + 1, maxI + 1);
+        return  result;
     }
 
     /**
