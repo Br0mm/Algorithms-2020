@@ -133,23 +133,26 @@ public class JavaAlgorithms {
     /*
     N - длина первой строки, M - длина второй строки
      время: O(N*M)
-     память: S(N * M)
+     память: S(M)
      */
     static public String longestCommonSubstring(String first, String second) {
-        int[][] matrix = new int[first.length()][second.length()];
+        int minLength = Math.min(first.length(), second.length());
+        int[][] matrix = new int[2][second.length()];
         int maxI = -1;
         int max = -1;
-        for (int i = 0; i < first.length(); i++)
+        for (int i = 0; i < first.length(); i++) {
             for (int j = 0; j < second.length(); j++) {
                 if (first.charAt(i) == second.charAt(j)) {
-                    if (i > 0 && j > 0) matrix[i][j] = matrix[i - 1][j - 1] + 1;
-                    else matrix[i][j] = 1;
-                    if (matrix [i][j] > max) {
-                        max = matrix[i][j];
+                    if (i > 0 && j > 0) matrix[1][j] = matrix[0][j - 1] + 1;
+                    else matrix[1][j] = 1;
+                    if (matrix[1][j] > max) {
+                        max = matrix[1][j];
                         maxI = i;
                     }
-                } else matrix[i][j] = 0;
+                } else matrix[1][j] = 0;
             }
+            matrix[0] =  matrix[1].clone();
+        }
         String result = "";
         if (max != -1) result = first.substring(maxI - max + 1, maxI + 1);
         return  result;
@@ -165,7 +168,24 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
+    /*
+    время: O(N*log(log(N)))
+     память: S(N)
+     */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit < 2) return 0;
+        int simpleNumbers = 0;
+        boolean[] numbers = new boolean[limit + 1];
+        for (int i = 0; i <= limit; i++)
+            numbers[i] = true;
+        for (int i = 2; i <= limit; i++) {
+            if (numbers[i]) {
+                simpleNumbers++;
+                for (int j = i * 2; j <= limit; j += i) {
+                    numbers[j] = false;
+                }
+            }
+        }
+        return simpleNumbers;
     }
 }
