@@ -133,16 +133,24 @@ public class JavaAlgorithms {
     /*
     N - длина первой строки, M - длина второй строки
      время: O(N*M)
-     память: S(M)
+     память: S(min(M, N))
      */
     static public String longestCommonSubstring(String first, String second) {
-        int minLength = Math.min(first.length(), second.length());
-        int[][] matrix = new int[2][second.length()];
+        String minLengthString;
+        String maxLengthString;
+        if (first.length() < second.length()) {
+            minLengthString = first;
+            maxLengthString = second;
+        } else {
+            minLengthString = second;
+            maxLengthString = first;
+        }
+        int[][] matrix = new int[2][minLengthString.length()];
         int maxI = -1;
         int max = -1;
-        for (int i = 0; i < first.length(); i++) {
-            for (int j = 0; j < second.length(); j++) {
-                if (first.charAt(i) == second.charAt(j)) {
+        for (int i = 0; i < maxLengthString.length(); i++) {
+            for (int j = 0; j < minLengthString.length(); j++) {
+                if (maxLengthString.charAt(i) == minLengthString.charAt(j)) {
                     if (i > 0 && j > 0) matrix[1][j] = matrix[0][j - 1] + 1;
                     else matrix[1][j] = 1;
                     if (matrix[1][j] > max) {
