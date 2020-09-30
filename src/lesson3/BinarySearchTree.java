@@ -101,8 +101,47 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        T value = (T) o;
+        if (!contains(o)) {
+            return false;
+        }
+        root = remove(root, value);
+        size--;
+        return true;
+    }
+
+    private Node<T> remove(Node<T> current, T value) {
+        if (current == null) {
+            return null;
+        }
+        int comparison = value.compareTo(current.value);
+        if (comparison == 0) {
+            if (current.left == null && current.right == null) {
+                return null;
+            }
+            if (current.right == null) {
+                return current.left;
+            }
+            if (current.left == null) {
+                return current.right;
+            }
+            Node<T> left = current.left;
+            Node<T> right = current.right;
+            current = smallestValue(current.right);
+            current.left = left;
+            current.right = remove(right, current.value);
+            return current;
+        }
+        if (comparison < 0) {
+            current.left = remove(current.left, value);
+            return current;
+        }
+        current.right = remove(current.right, value);
+        return current;
+    }
+
+    private Node<T> smallestValue(Node<T> root) {
+        return root.left == null ? new Node<>(root.value) : smallestValue(root.left);
     }
 
     @Nullable
