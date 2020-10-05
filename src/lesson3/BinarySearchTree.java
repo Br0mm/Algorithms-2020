@@ -99,6 +99,10 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      *
      * Средняя
      */
+    /*
+    время O(logN)
+    память O(logN)
+     */
     @Override
     public boolean remove(Object o) {
         T value = (T) o;
@@ -157,9 +161,23 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
+        List<Node<T>> nodes = new ArrayList<>();
+
+        private int index = 0;
+        private Node<T> lastNext;
 
         private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+            if(root == null)
+                return;
+            addToNodes(root);
+        }
+
+        private void addToNodes(Node<T> parent) {
+            if (parent.left != null) {
+                addToNodes(parent.left);
+            }
+            nodes.add(parent);
+            if (parent.right != null) addToNodes(parent.right);
         }
 
         /**
@@ -172,10 +190,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          *
          * Средняя
          */
+        /*
+        время O(logN)
+        память O(logN)
+         */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return index < nodes.size();
         }
 
         /**
@@ -191,10 +212,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          *
          * Средняя
          */
+        /*
+        время O(1)
+        память O(1)
+         */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if(index == nodes.size()) throw new NoSuchElementException();
+            Node<T> currentNode = nodes.get(index);
+            index++;
+            lastNext = currentNode;
+            return currentNode.value;
         }
 
         /**
@@ -209,10 +237,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          *
          * Сложная
          */
+        /*
+         время O(logN)
+         память O(logN)
+        */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (lastNext == null) throw new IllegalStateException();
+            BinarySearchTree.this.remove(lastNext.value);
+            lastNext = null;
         }
     }
 
