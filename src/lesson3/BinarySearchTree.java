@@ -191,8 +191,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Средняя
          */
         /*
-        время O(logN)
-        память O(logN)
+        время O(1)
+        память O(1)
          */
         @Override
         public boolean hasNext() {
