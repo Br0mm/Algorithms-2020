@@ -83,18 +83,26 @@ abstract class AbstractTrieTest {
                 trieSet.iterator().hasNext(),
                 "Iterator of an empty set should not have any next elements."
             )
+            assertFailsWith<NoSuchElementException> {
+                trieSet.iterator().next()
+            }
             for (element in controlSet) {
                 trieSet += element
             }
             val iterator1 = trieSet.iterator()
             val iterator2 = trieSet.iterator()
             println("Checking if calling hasNext() changes the state of the iterator...")
+            var counter = 0
             while (iterator1.hasNext()) {
+                counter++
                 assertEquals(
                     iterator2.next(), iterator1.next(),
                     "Calling TrieIterator.hasNext() changes the state of the iterator."
                 )
             }
+            assertEquals(
+                controlSet.size, counter
+            )
             val trieIter = trieSet.iterator()
             println("Checking if the iterator traverses the entire set...")
             while (trieIter.hasNext()) {
@@ -104,7 +112,7 @@ abstract class AbstractTrieTest {
                 controlSet.isEmpty(),
                 "TrieIterator doesn't traverse the entire set."
             )
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 trieIter.next()
             }
             println("All clear!")
@@ -113,6 +121,9 @@ abstract class AbstractTrieTest {
 
     protected fun doIteratorRemoveTest() {
         implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
         val random = Random()
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
@@ -168,6 +179,15 @@ abstract class AbstractTrieTest {
                     "Trie set has the element $element that is not in control set."
                 )
             }
+            val iterator1 = trieSet.iterator()
+            while (iterator1.hasNext()) {
+                iterator1.next()
+                iterator1.remove()
+            }
+            assertEquals(
+                0, trieSet.size,
+                "binarySet isn't empty"
+            )
             println("All clear!")
         }
     }

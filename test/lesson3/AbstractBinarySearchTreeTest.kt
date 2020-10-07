@@ -287,6 +287,15 @@ abstract class AbstractBinarySearchTreeTest {
                     "The tree has the element $element that is not in control set."
                 )
             }
+            val iterator1 = binarySet.iterator()
+            while (iterator1.hasNext()) {
+                iterator1.next()
+                iterator1.remove()
+            }
+            assertEquals(
+                0, binarySet.size,
+                "binarySet isn't empty"
+            )
             println("All clear!")
         }
     }
