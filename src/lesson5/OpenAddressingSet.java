@@ -1,13 +1,14 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.AbstractSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
+
+    enum Deleted {
+        DELETED
+    }
 
     private final int bits;
 
@@ -67,7 +68,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != Deleted.DELETED) {
             if (current.equals(t)) {
                 return false;
             }
@@ -93,9 +94,23 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      *
      * Средняя
      */
+    /*
+    A = n / m, где n = число элементов, m = размерность массива
+    время O(1 / (1 - A))
+    память O(1)
+     */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        if (!contains(o)) return false;
+        int index = startingIndex(o);
+        Object current = storage[index];
+        while (!current.equals(o)) {
+            index = (index + 1) % capacity;
+            current = storage[index];
+        }
+        storage[index] = Deleted.DELETED;
+        size--;
+        return true;
     }
 
     /**
@@ -111,7 +126,52 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        List<Object> objects = new ArrayList<>();
+        private int index = 0;
+        private Object lastNext;
+
+        public OpenAddressingSetIterator() {
+            for (Object element : storage) {
+                if (element != null && element != Deleted.DELETED) objects.add(element);
+            }
+        }
+
+        /*
+        время O(1)
+        память O(1)
+         */
+        @Override
+        public boolean hasNext() {
+            return index < objects.size();
+        }
+
+        /*
+        время O(1)
+        память O(1)
+         */
+        @Override
+        public T next() {
+            if (index == objects.size()) throw new NoSuchElementException();
+            Object currentObject = objects.get(index);
+            index++;
+            lastNext = currentObject;
+            return (T) currentObject;
+        }
+
+        /*
+        A = n / m, где n = число элементов, m = размерность массива
+        время O(1 / (1 - A))
+        память O(1)
+        */
+        @Override
+        public void remove() {
+            if (lastNext == null) throw new IllegalStateException();
+            OpenAddressingSet.this.remove(lastNext);
+            lastNext = null;
+        }
     }
 }

@@ -19,6 +19,7 @@ class OpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     @Tag("7")
     fun removeTestJava() {
         doRemoveTest()
+        doRemoveBonusTest()
     }
 
     @Test
@@ -30,6 +31,7 @@ class OpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     @Test
     @Tag("8")
     fun iteratorRemoveTestJava() {
+        doIteratorRemoveBonusTest()
         doIteratorRemoveTest()
     }
 }
