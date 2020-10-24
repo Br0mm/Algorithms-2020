@@ -136,7 +136,7 @@ public class JavaTasks {
                     }
                     writer.write(System.getProperty("line.separator"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             });
         }
