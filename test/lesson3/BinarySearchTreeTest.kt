@@ -41,6 +41,8 @@ class BinarySearchTreeTest : AbstractBinarySearchTreeTest() {
     @Test
     @Tag("8")
     fun iteratorRemoveTestJava() {
+        doIteratorRemoveBonusTest()
+        doIteratorRemoveAnotherBonusTest()
         doIteratorRemoveTest()
     }
 

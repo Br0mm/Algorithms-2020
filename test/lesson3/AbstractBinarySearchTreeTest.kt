@@ -300,6 +300,179 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
+    protected fun doIteratorRemoveBonusTest() {
+        implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+        val controlSet = TreeSet<Int>()
+        val toRemove = 13
+        controlSet.add(1)
+        controlSet.add(9)
+        controlSet.add(12)
+        controlSet.add(13)
+        controlSet.add(15)
+        controlSet.add(16)
+        controlSet.add(39)
+        controlSet.add(46)
+        controlSet.add(52)
+        controlSet.add(65)
+        controlSet.add(72)
+        controlSet.add(76)
+        controlSet.add(80)
+        controlSet.add(84)
+        controlSet.add(89)
+        controlSet.add(94)
+        controlSet.add(96)
+        controlSet.add(98)
+        println("Initial set: $controlSet")
+        val binarySet = create()
+        for (element in controlSet) {
+            binarySet += element
+        }
+        controlSet.remove(toRemove)
+        println("Control set: $controlSet")
+        println("Removing element $toRemove from the tree through the iterator...")
+        val iterator = binarySet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly removed before the iteration started") {
+            iterator.remove()
+        }
+        var counter = binarySet.size
+        print("Iterating: ")
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            print("$element, ")
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("BinarySearchTreeIterator.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(
+            0, counter,
+            "BinarySearchTreeIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+        )
+        assertTrue(
+            binarySet.checkInvariant(),
+            "The binary search tree invariant is false after BinarySearchTreeIterator.remove()."
+        )
+        assertEquals(
+            controlSet.size, binarySet.size,
+            "The size of the tree is incorrect: was ${binarySet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                binarySet.contains(element),
+                "The tree doesn't have the element $element from the control set."
+            )
+        }
+        for (element in binarySet) {
+            assertTrue(
+                controlSet.contains(element),
+                "The tree has the element $element that is not in control set."
+            )
+        }
+        val iterator1 = binarySet.iterator()
+        while (iterator1.hasNext()) {
+            iterator1.next()
+            iterator1.remove()
+        }
+        assertEquals(
+            0, binarySet.size,
+            "binarySet isn't empty"
+        )
+        println("All clear!")
+    }
+
+    protected fun doIteratorRemoveAnotherBonusTest() {
+        implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+        val controlSet = TreeSet<Int>()
+        val toRemove = 14
+        controlSet.add(4)
+        controlSet.add(14)
+        controlSet.add(20)
+        controlSet.add(21)
+        controlSet.add(23)
+        controlSet.add(26)
+        controlSet.add(33)
+        controlSet.add(37)
+        controlSet.add(42)
+        controlSet.add(44)
+        controlSet.add(46)
+        controlSet.add(51)
+        controlSet.add(65)
+        controlSet.add(67)
+        controlSet.add(71)
+        controlSet.add(87)
+        controlSet.add(97)
+        controlSet.add(98)
+        controlSet.add(99)
+        println("Initial set: $controlSet")
+        val binarySet = create()
+        for (element in controlSet) {
+            binarySet += element
+        }
+        controlSet.remove(toRemove)
+        println("Control set: $controlSet")
+        println("Removing element $toRemove from the tree through the iterator...")
+        val iterator = binarySet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly removed before the iteration started") {
+            iterator.remove()
+        }
+        var counter = binarySet.size
+        print("Iterating: ")
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            print("$element, ")
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("BinarySearchTreeIterator.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(
+            0, counter,
+            "BinarySearchTreeIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+        )
+        assertTrue(
+            binarySet.checkInvariant(),
+            "The binary search tree invariant is false after BinarySearchTreeIterator.remove()."
+        )
+        assertEquals(
+            controlSet.size, binarySet.size,
+            "The size of the tree is incorrect: was ${binarySet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                binarySet.contains(element),
+                "The tree doesn't have the element $element from the control set."
+            )
+        }
+        for (element in binarySet) {
+            assertTrue(
+                controlSet.contains(element),
+                "The tree has the element $element that is not in control set."
+            )
+        }
+        val iterator1 = binarySet.iterator()
+        while (iterator1.hasNext()) {
+            iterator1.next()
+            iterator1.remove()
+        }
+        assertEquals(
+            0, binarySet.size,
+            "binarySet isn't empty"
+        )
+        println("All clear!")
+    }
+
     protected fun doSubSetTest() {
         implementationTest { create().subSet(0, 0) }
         assertEquals(

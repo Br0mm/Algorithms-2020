@@ -103,23 +103,26 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     время O(logN)
     память O(logN)
      */
+    private boolean elementWasRemoved;
+
     @Override
     public boolean remove(Object o) {
+        elementWasRemoved = false;
         T value = (T) o;
-        if (!contains(o)) {
-            return false;
-        }
-        root = remove(root, value);
-        size--;
-        return true;
+        root = removeSubFunction(root, value);
+        if (elementWasRemoved) {
+            size--;
+            return true;
+        } else return false;
     }
 
-    private Node<T> remove(Node<T> current, T value) {
+    public Node<T> removeSubFunction(Node<T> current, T value) {
         if (current == null) {
             return null;
         }
         int comparison = value.compareTo(current.value);
         if (comparison == 0) {
+            elementWasRemoved = true;
             if (current.left == null && current.right == null) {
                 return null;
             }
@@ -133,18 +136,18 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             Node<T> right = current.right;
             current = smallestValue(current.right);
             current.left = left;
-            current.right = remove(right, current.value);
+            current.right = removeSubFunction(right, current.value);
             return current;
         }
         if (comparison < 0) {
-            current.left = remove(current.left, value);
+            current.left = removeSubFunction(current.left, value);
             return current;
         }
-        current.right = remove(current.right, value);
+        current.right = removeSubFunction(current.right, value);
         return current;
     }
 
-    private Node<T> smallestValue(Node<T> root) {
+    public Node<T> smallestValue(Node<T> root) {
         return root.left == null ? new Node<>(root.value) : smallestValue(root.left);
     }
 
@@ -244,8 +247,18 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         @Override
         public void remove() {
             if (lastNext == null) throw new IllegalStateException();
-            BinarySearchTree.this.remove(lastNext.value);
+            if (root.equals(lastNext)) {
+                BinarySearchTree.this.remove(root.value);
+                size++;
+            } else if (index - 2 >= 0 && nodes.get(index - 2).right.equals(lastNext)) {
+                nodes.get(index - 2).right
+                        = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
+            } else if (index != nodes.size() && nodes.get(index).left.equals(lastNext)) {
+                nodes.get(index).left
+                        = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
+            }
             lastNext = null;
+            size--;
         }
     }
 
