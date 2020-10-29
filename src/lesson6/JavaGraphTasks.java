@@ -2,8 +2,7 @@ package lesson6;
 
 import kotlin.NotImplementedError;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -33,8 +32,53 @@ public class JavaGraphTasks {
      * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
      * связного графа ровно по одному разу
      */
+    private static List<List<Graph.Edge>> miniCycles;
+    private static List<Graph.Edge> eulerLoop;
     public static List<Graph.Edge> findEulerLoop(Graph graph) {
-        throw new NotImplementedError();
+        miniCycles = new ArrayList<>();
+        eulerLoop = new ArrayList<>();
+        if (graph.getEdges().isEmpty()) return new ArrayList<>();
+        int checkCounterOfEdges = graph.getEdges().size();
+        for (Graph.Vertex vertex: graph.getVertices()) {
+            if (graph.getNeighbors(vertex).size() % 2 == 1) return new ArrayList<>();
+
+        }
+        Graph.Vertex currentPosition = graph.getVertices().iterator().next();
+        int counterOfEdges = 0;
+        boolean isNotEveryEdgeFound = true;
+        List<Graph.Edge> miniCycle = new ArrayList<>();
+        Set<Graph.Edge> unvisitedEdges = graph.getEdges();
+        while (counterOfEdges < checkCounterOfEdges) {
+            if (isNotEveryEdgeFound) miniCycle = new ArrayList<>();
+            Iterator<Graph.Vertex> nextPositionIterator = graph.getNeighbors(currentPosition).iterator();
+            isNotEveryEdgeFound = true;
+            while (nextPositionIterator.hasNext() && isNotEveryEdgeFound) {
+                Graph.Vertex nextPosition = nextPositionIterator.next();
+                if (unvisitedEdges.contains(graph.getConnection(currentPosition, nextPosition))) {
+                    miniCycle.add(graph.getConnection(currentPosition, nextPosition));
+                    unvisitedEdges.remove(graph.getConnection(currentPosition, nextPosition));
+                    isNotEveryEdgeFound = false;
+                    counterOfEdges++;
+                    currentPosition = nextPosition;
+                }
+            }
+            if (isNotEveryEdgeFound) {
+                if (!miniCycle.isEmpty()) miniCycles.add(miniCycle);
+                currentPosition = miniCycle.get(0).getEnd();
+            }
+        }
+        miniCycles.add(miniCycle);
+        if (!miniCycles.isEmpty()) eulerLoopResultGenerator(0);
+        return eulerLoop;
+    }
+
+    private static void eulerLoopResultGenerator(int indexOfMiniCycle) {
+        for (int i = 0; i < miniCycles.get(indexOfMiniCycle).size(); i++) {
+            Graph.Edge currentEdge = miniCycles.get(indexOfMiniCycle).get(i);
+            eulerLoop.add(currentEdge);
+            if (indexOfMiniCycle + 1 < miniCycles.size() && currentEdge.getEnd() == miniCycles.get(indexOfMiniCycle + 1).get(0).getBegin())
+                eulerLoopResultGenerator(indexOfMiniCycle + 1);
+        }
     }
 
     /**

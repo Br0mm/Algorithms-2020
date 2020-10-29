@@ -247,13 +247,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         @Override
         public void remove() {
             if (lastNext == null) throw new IllegalStateException();
-            if (root.equals(lastNext)) {
+            if (root == lastNext) {
                 BinarySearchTree.this.remove(root.value);
                 size++;
-            } else if (index - 2 >= 0 && nodes.get(index - 2).right.equals(lastNext)) {
+            } else if (index - 2 >= 0 && nodes.get(index - 2).right == lastNext) {
                 nodes.get(index - 2).right
                         = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
-            } else if (index != nodes.size() && nodes.get(index).left.equals(lastNext)) {
+            } else {
                 nodes.get(index).left
                         = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
             }
