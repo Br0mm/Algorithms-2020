@@ -34,10 +34,11 @@ public class JavaGraphTasks {
      */
     /*
     время O(Edges)
-    память S(Vertices + Edges)
+    память S(Edges)
      */
-    private static List<List<Graph.Edge>> miniCycles;
+    private static List<List<Graph.Vertex>> miniCycles;
     private static List<Graph.Edge> eulerLoop;
+
     public static List<Graph.Edge> findEulerLoop(Graph graph) {
         miniCycles = new ArrayList<>();
         eulerLoop = new ArrayList<>();
@@ -49,32 +50,37 @@ public class JavaGraphTasks {
         }
         Graph.Vertex currentPosition = graph.getVertices().iterator().next();
         int counterOfEdges = 0;
-        List<Graph.Edge> miniCycle = new ArrayList<>();
+        List<Graph.Vertex> miniCycle = new ArrayList<>();
+        miniCycle.add(currentPosition);
         while (counterOfEdges < graph.getEdges().size()) {
-            Graph.Vertex nextPosition = connections.get(currentPosition).iterator().hasNext() ? connections.get(currentPosition).iterator().next() : null;
+            Graph.Vertex nextPosition = connections.get(currentPosition).iterator().hasNext() ?
+                    connections.get(currentPosition).iterator().next() : null;
             if (nextPosition != null) {
-                miniCycle.add(graph.getConnection(currentPosition, nextPosition));
+                miniCycle.add(nextPosition);
                 connections.get(currentPosition).remove(nextPosition);
                 connections.get(nextPosition).remove(currentPosition);
                 counterOfEdges++;
                 currentPosition = nextPosition;
             } else {
                 if (!miniCycle.isEmpty()) miniCycles.add(miniCycle);
-                currentPosition = miniCycle.get(0).getEnd();
+                currentPosition = miniCycle.get(1);
                 miniCycle = new ArrayList<>();
+                miniCycle.add(currentPosition);
             }
         }
         miniCycles.add(miniCycle);
-        if (!miniCycles.isEmpty()) eulerLoopResultGenerator(0);
+        if (!miniCycles.isEmpty()) eulerLoopResultGenerator(0, graph);
         return eulerLoop;
     }
 
-    private static void eulerLoopResultGenerator(int indexOfMiniCycle) {
-        for (int i = 0; i < miniCycles.get(indexOfMiniCycle).size(); i++) {
-            Graph.Edge currentEdge = miniCycles.get(indexOfMiniCycle).get(i);
+    private static void eulerLoopResultGenerator(int indexOfMiniCycle, Graph graph) {
+        for (int i = 0; i < miniCycles.get(indexOfMiniCycle).size() - 1; i++) {
+            Graph.Edge currentEdge = graph.getConnection(miniCycles.get(indexOfMiniCycle).get(i),
+                    miniCycles.get(indexOfMiniCycle).get(i + 1));
             eulerLoop.add(currentEdge);
-            if (indexOfMiniCycle + 1 < miniCycles.size() && currentEdge.getEnd() == miniCycles.get(indexOfMiniCycle + 1).get(0).getBegin())
-                eulerLoopResultGenerator(indexOfMiniCycle + 1);
+            if (indexOfMiniCycle + 1 < miniCycles.size() &&
+                    miniCycles.get(indexOfMiniCycle).get(i + 1) == miniCycles.get(indexOfMiniCycle + 1).get(0))
+                eulerLoopResultGenerator(indexOfMiniCycle + 1, graph);
         }
     }
 
