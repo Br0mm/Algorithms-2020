@@ -32,39 +32,36 @@ public class JavaGraphTasks {
      * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
      * связного графа ровно по одному разу
      */
+    /*
+    время O(Edges)
+    память S(Vertices + Edges)
+     */
     private static List<List<Graph.Edge>> miniCycles;
     private static List<Graph.Edge> eulerLoop;
     public static List<Graph.Edge> findEulerLoop(Graph graph) {
         miniCycles = new ArrayList<>();
         eulerLoop = new ArrayList<>();
         if (graph.getEdges().isEmpty()) return new ArrayList<>();
-        int checkCounterOfEdges = graph.getEdges().size();
+        Map<Graph.Vertex, Set<Graph.Vertex>> connections = new HashMap<>();
         for (Graph.Vertex vertex: graph.getVertices()) {
             if (graph.getNeighbors(vertex).size() % 2 == 1) return new ArrayList<>();
-
+            connections.put(vertex, graph.getNeighbors(vertex));
         }
         Graph.Vertex currentPosition = graph.getVertices().iterator().next();
         int counterOfEdges = 0;
-        boolean isNotEveryEdgeFound = true;
         List<Graph.Edge> miniCycle = new ArrayList<>();
-        Set<Graph.Edge> unvisitedEdges = graph.getEdges();
-        while (counterOfEdges < checkCounterOfEdges) {
-            if (isNotEveryEdgeFound) miniCycle = new ArrayList<>();
-            Iterator<Graph.Vertex> nextPositionIterator = graph.getNeighbors(currentPosition).iterator();
-            isNotEveryEdgeFound = true;
-            while (nextPositionIterator.hasNext() && isNotEveryEdgeFound) {
-                Graph.Vertex nextPosition = nextPositionIterator.next();
-                if (unvisitedEdges.contains(graph.getConnection(currentPosition, nextPosition))) {
-                    miniCycle.add(graph.getConnection(currentPosition, nextPosition));
-                    unvisitedEdges.remove(graph.getConnection(currentPosition, nextPosition));
-                    isNotEveryEdgeFound = false;
-                    counterOfEdges++;
-                    currentPosition = nextPosition;
-                }
-            }
-            if (isNotEveryEdgeFound) {
+        while (counterOfEdges < graph.getEdges().size()) {
+            Graph.Vertex nextPosition = connections.get(currentPosition).iterator().hasNext() ? connections.get(currentPosition).iterator().next() : null;
+            if (nextPosition != null) {
+                miniCycle.add(graph.getConnection(currentPosition, nextPosition));
+                connections.get(currentPosition).remove(nextPosition);
+                connections.get(nextPosition).remove(currentPosition);
+                counterOfEdges++;
+                currentPosition = nextPosition;
+            } else {
                 if (!miniCycle.isEmpty()) miniCycles.add(miniCycle);
                 currentPosition = miniCycle.get(0).getEnd();
+                miniCycle = new ArrayList<>();
             }
         }
         miniCycles.add(miniCycle);
