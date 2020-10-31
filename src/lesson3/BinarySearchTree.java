@@ -10,6 +10,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     private static class Node<T> {
         final T value;
+        Node<T> parent = null;
         Node<T> left = null;
         Node<T> right = null;
 
@@ -79,10 +80,12 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         else if (comparison < 0) {
             assert closest.left == null;
             closest.left = newNode;
+            closest.left.parent = closest;
         }
         else {
             assert closest.right == null;
             closest.right = newNode;
+            closest.right.parent = closest;
         }
         size++;
         return true;
@@ -134,7 +137,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             }
             Node<T> left = current.left;
             Node<T> right = current.right;
+            Node<T> parent = current.parent;
             current = smallestValue(current.right);
+            current.parent = parent;
             current.left = left;
             current.right = removeSubFunction(right, current.value);
             return current;
@@ -151,6 +156,12 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         return root.left == null ? new Node<>(root.value) : smallestValue(root.left);
     }
 
+    public Node<T> smallestBiggerParent(Node<T> node) {
+        int comparison = node.value.compareTo(node.parent.value);
+        if (comparison < 0) return node.parent;
+        else return smallestBiggerParent(node.parent);
+    }
+
     @Nullable
     @Override
     public Comparator<? super T> comparator() {
@@ -164,28 +175,22 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
-        List<Node<T>> nodes = new ArrayList<>();
-        Map<Node<T>, Node<T>> mapOfParents = new HashMap<>();
-
-        private int index = 0;
+        private int elementsFound;
+        private final Integer numberOfElements;
         private Node<T> lastNext;
+        private Node<T> startNode;
 
         private BinarySearchTreeIterator() {
+            elementsFound = 0;
+            numberOfElements = size();
             if(root == null)
                 return;
-            addToNodes(root);
+            startNode = findSmallest(root);
         }
 
-        private void addToNodes(Node<T> parent) {
-            if (parent.left != null) {
-                mapOfParents.put(parent.left, parent);
-                addToNodes(parent.left);
-            }
-            nodes.add(parent);
-            if (parent.right != null) {
-                mapOfParents.put(parent.right, parent);
-                addToNodes(parent.right);
-            }
+        private Node<T> findSmallest(Node<T> current) {
+            if (current.left == null) return current;
+            else return findSmallest(current.left);
         }
 
         /**
@@ -204,7 +209,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            return index < nodes.size();
+            return elementsFound < numberOfElements;
         }
 
         /**
@@ -226,11 +231,26 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            if(index == nodes.size()) throw new NoSuchElementException();
-            Node<T> currentNode = nodes.get(index);
-            index++;
-            lastNext = currentNode;
-            return currentNode.value;
+            if(numberOfElements == null || elementsFound == numberOfElements) throw new NoSuchElementException();
+            if (elementsFound == 0) {
+                lastNext = startNode;
+                elementsFound++;
+                return startNode.value;
+            }
+            elementsFound++;
+            if (startNode == root) {
+                startNode = findSmallest(root.right);
+                lastNext = startNode;;
+                return startNode.value;
+            }
+            if (startNode.right != null) {
+                lastNext = startNode.right;;
+                startNode = startNode.right;
+                return startNode.value;
+            }
+            if (elementsFound != numberOfElements)startNode = BinarySearchTree.this.smallestBiggerParent(startNode);
+            lastNext = startNode;
+            return startNode.value;
         }
 
         /**
@@ -255,12 +275,14 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             if (root == lastNext) {
                 BinarySearchTree.this.remove(root.value);
                 size++;
-            } else if (mapOfParents.get(lastNext).right == lastNext) {
-                mapOfParents.get(lastNext).right
-                        = BinarySearchTree.this.removeSubFunction(mapOfParents.get(lastNext).right, lastNext.value);
+            } else if (lastNext.parent.right == lastNext) {
+                lastNext.parent.right
+                        = BinarySearchTree.this.removeSubFunction(lastNext.parent.right, lastNext.value);
+                if (lastNext.parent.right != null) lastNext.parent.right.parent = lastNext.parent;
             } else {
-                mapOfParents.get(lastNext).left
-                        = BinarySearchTree.this.removeSubFunction(mapOfParents.get(lastNext).left, lastNext.value);
+                lastNext.parent.left
+                        = BinarySearchTree.this.removeSubFunction(lastNext.parent.left, lastNext.value);
+                if (lastNext.parent.left != null) lastNext.parent.left.parent = lastNext.parent;
             }
             lastNext = null;
             size--;
