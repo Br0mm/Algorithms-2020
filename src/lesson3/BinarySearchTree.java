@@ -165,6 +165,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     public class BinarySearchTreeIterator implements Iterator<T> {
         List<Node<T>> nodes = new ArrayList<>();
+        Map<Node<T>, Node<T>> mapOfParents = new HashMap<>();
 
         private int index = 0;
         private Node<T> lastNext;
@@ -177,10 +178,14 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
         private void addToNodes(Node<T> parent) {
             if (parent.left != null) {
+                mapOfParents.put(parent.left, parent);
                 addToNodes(parent.left);
             }
             nodes.add(parent);
-            if (parent.right != null) addToNodes(parent.right);
+            if (parent.right != null) {
+                mapOfParents.put(parent.right, parent);
+                addToNodes(parent.right);
+            }
         }
 
         /**
@@ -250,12 +255,12 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             if (root == lastNext) {
                 BinarySearchTree.this.remove(root.value);
                 size++;
-            } else if (index - 2 >= 0 && nodes.get(index - 2).right == lastNext) {
-                nodes.get(index - 2).right
-                        = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
+            } else if (mapOfParents.get(lastNext).right == lastNext) {
+                mapOfParents.get(lastNext).right
+                        = BinarySearchTree.this.removeSubFunction(mapOfParents.get(lastNext).right, lastNext.value);
             } else {
-                nodes.get(index).left
-                        = BinarySearchTree.this.removeSubFunction(nodes.get(index - 2).right, lastNext.value);
+                mapOfParents.get(lastNext).left
+                        = BinarySearchTree.this.removeSubFunction(mapOfParents.get(lastNext).left, lastNext.value);
             }
             lastNext = null;
             size--;
