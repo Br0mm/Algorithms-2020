@@ -1,6 +1,9 @@
 package lesson6;
 
 import kotlin.NotImplementedError;
+import lesson6.impl.GraphBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -112,8 +115,31 @@ public class JavaGraphTasks {
      * |
      * J ------------ K
      */
+    /*
+    время O(Vertices + Edges)
+    память S(Vertices + Edges)
+     */
     public static Graph minimumSpanningTree(Graph graph) {
-        throw new NotImplementedError();
+        GraphBuilder spanningTree = new GraphBuilder();
+        if (graph.getEdges().isEmpty()) return spanningTree.build();
+        Set<Graph.Vertex> vertices = new HashSet<>();
+        Queue<Graph.Vertex> verticesToVisit = new ArrayDeque<>();
+        verticesToVisit.add(graph.getVertices().iterator().next());
+        Graph.Vertex currentPosition;
+        vertices.add(verticesToVisit.peek());
+        while (!verticesToVisit.isEmpty()) {
+            currentPosition = verticesToVisit.remove();
+            for (Graph.Vertex vertex : graph.getNeighbors(currentPosition)) {
+                if (!vertices.contains(vertex)) {
+                    verticesToVisit.add(vertex);
+                    spanningTree.addVertex(currentPosition.toString());
+                    spanningTree.addVertex(vertex.toString());
+                    spanningTree.addConnection(currentPosition, vertex, 1);
+                    vertices.add(vertex);
+                }
+            }
+        }
+        return spanningTree.build();
     }
 
     /**
