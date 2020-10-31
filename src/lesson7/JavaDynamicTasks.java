@@ -2,6 +2,7 @@ package lesson7;
 
 import kotlin.NotImplementedError;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -59,10 +60,62 @@ public class JavaDynamicTasks {
      * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
      * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
      */
+    /*
+     время: O(N*LogN)
+     память: S(N)
+     */
     public static List<Integer> longestIncreasingSubSequence(List<Integer> list) {
-        throw new NotImplementedError();
+        if (list.isEmpty()) return new ArrayList<>();
+        int[] indexes = new int[list.size()];
+        int[] minElements = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            indexes[i] = Integer.MAX_VALUE;
+            minElements[i] = Integer.MAX_VALUE;
+        }
+        int maxIndex = -1;
+        int indexOfLastElement = -1;
+        int lastElement = -1;
+        for (int i = 0; i < list.size(); i++) {
+            int index = binarySearch(list.get(i), minElements);
+            minElements[index] = list.get(i);
+            if (index > maxIndex) {
+                indexOfLastElement = i;
+                maxIndex = index;
+                lastElement = list.get(i);
+            }
+            indexes[i] = index;
+        }
+
+        List<Integer> result = new ArrayList<>();
+        int currentElement = lastElement;
+        result.add(lastElement);
+        for (int i = indexOfLastElement - 1; i >= 0; i--) {
+            if (indexes[i] == maxIndex - 1) {
+                if (result.get(0) > list.get(i)) currentElement = list.get(i);
+                if (i == 0 || indexes[i - 1] != maxIndex - 1) {
+                    result.add(0, currentElement);
+                    maxIndex--;
+                }
+            }
+        }
+        return result;
     }
 
+
+    private static int binarySearch(int element, int[] minElements) {
+        int index = -1;
+        int lowBorder = 0;
+        int highBorder = minElements.length;
+
+        while (lowBorder < highBorder) {
+            index = (lowBorder + highBorder) / 2;
+            if (minElements[index] <= element) {
+                index++;
+                lowBorder = index;
+            } else highBorder = index;
+        }
+        return index;
+    }
     /**
      * Самый короткий маршрут на прямоугольном поле.
      * Средняя

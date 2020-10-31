@@ -41,6 +41,7 @@ abstract class AbstractDynamicTests {
     }
 
     fun longestIncreasingSubSequence(longestIncreasingSubSequence: (List<Int>) -> List<Int>) {
+
         assertEquals(listOf(), longestIncreasingSubSequence(listOf()))
         assertEquals(listOf(1), longestIncreasingSubSequence(listOf(1)))
         assertEquals(listOf(1, 2), longestIncreasingSubSequence(listOf(1, 2)))
@@ -48,6 +49,18 @@ abstract class AbstractDynamicTests {
         assertEquals(
             listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
             longestIncreasingSubSequence(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+        )
+        assertEquals(
+            listOf(5, 10, 12, 24),
+            longestIncreasingSubSequence(listOf(5, 10, 6, 12, 3, 24, 7, 8))
+        )
+        assertEquals(
+            listOf(3, 4, 9),
+            longestIncreasingSubSequence(listOf(3, 4, 9, 2, 5, 1))
+        )
+        assertEquals(
+            listOf(1, 2, 6, 7, 11),
+            longestIncreasingSubSequence(listOf(9, 3, 10, 4, 8, 1, 2, 12, 6, 5, 7, 11))
         )
         assertEquals(listOf(2, 8, 9, 12), longestIncreasingSubSequence(listOf(2, 8, 5, 9, 12, 6)))
         assertEquals(
