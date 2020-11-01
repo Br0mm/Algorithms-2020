@@ -11,6 +11,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
+        String value = null;
     }
 
     private Node root = new Node();
@@ -52,7 +53,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     public boolean add(String element) {
         Node current = root;
         boolean modified = false;
+        StringBuilder nodeValue = new StringBuilder();
         for (char character : withZero(element).toCharArray()) {
+            nodeValue.append(character);
             Node child = current.children.get(character);
             if (child != null) {
                 current = child;
@@ -60,6 +63,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 modified = true;
                 Node newChild = new Node();
                 current.children.put(character, newChild);
+                newChild.value = nodeValue.toString();
                 current = newChild;
             }
         }
@@ -95,10 +99,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     }
 
     public class TrieIterator implements Iterator<String> {
-        List<String> words = new ArrayList<>();
+        List<Node> nodes = new ArrayList<>();
 
         private int index = 0;
-        private String lastNext;
+        private Node lastNext;
 
         private TrieIterator() {
             if (root == null)
@@ -109,7 +113,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         private void addToWords(Node parent, String partOfWord) {
             if (parent.children.size() != 0)
                 parent.children.forEach((k, v) -> {
-                    if (k == (char) 0) words.add(partOfWord);
+                    if (k == (char) 0) {
+                        nodes.add(parent);
+                    }
                     else addToWords(v, partOfWord + k);
                 });
         }
@@ -120,7 +126,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
          */
         @Override
         public boolean hasNext() {
-            return index < words.size();
+            return index < nodes.size();
         }
 
         /*
@@ -129,11 +135,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
          */
         @Override
         public String next() {
-            if (index == words.size()) throw new NoSuchElementException();
-            String currentWord = words.get(index);
+            if (index == nodes.size()) throw new NoSuchElementException();
+            lastNext = nodes.get(index);
             index++;
-            lastNext = currentWord;
-            return lastNext;
+            return lastNext.value;
         }
 
         /*
@@ -143,7 +148,8 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         @Override
         public void remove() {
             if (lastNext == null) throw new IllegalStateException();
-            Trie.this.remove(lastNext);
+            lastNext.children.remove((char) 0);
+            size--;
             lastNext = null;
         }
 

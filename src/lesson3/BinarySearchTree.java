@@ -275,15 +275,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             if (root == lastNext) {
                 BinarySearchTree.this.remove(root.value);
                 size++;
-            } else if (lastNext.parent.right == lastNext) {
-                lastNext.parent.right
-                        = BinarySearchTree.this.removeSubFunction(lastNext.parent.right, lastNext.value);
-                if (lastNext.parent.right != null) lastNext.parent.right.parent = lastNext.parent;
-            } else {
-                lastNext.parent.left
-                        = BinarySearchTree.this.removeSubFunction(lastNext.parent.left, lastNext.value);
-                if (lastNext.parent.left != null) lastNext.parent.left.parent = lastNext.parent;
             }
+            lastNext.parent = BinarySearchTree.this.removeSubFunction(lastNext.parent, lastNext.value);
             lastNext = null;
             size--;
         }
