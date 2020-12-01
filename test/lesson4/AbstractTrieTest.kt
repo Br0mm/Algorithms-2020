@@ -119,6 +119,132 @@ abstract class AbstractTrieTest {
         }
     }
 
+    protected fun doBonusIteratorTest() {
+        implementationTest { create().iterator().hasNext() }
+        implementationTest { create().iterator().next() }
+
+        val controlSet = mutableSetOf<String>()
+        controlSet.add("egbeeed")
+        controlSet.add("hd")
+        controlSet.add("feeadadgahe")
+        controlSet.add("fcgdgfgg")
+        controlSet.add("fbchbafhadhfc")
+        controlSet.add("accbfbhchged")
+        controlSet.add("cg")
+        controlSet.add("ddgdhcadche")
+        controlSet.add("hgeeahcdafd")
+        controlSet.add("bffheghhabeebf")
+        controlSet.add("adbh")
+        controlSet.add("gfbabeabhddghg")
+        controlSet.add("fhhcebece")
+        controlSet.add("acdcgbdae")
+        controlSet.add("cgfbabddgdec")
+        println("Control set: $controlSet")
+        val trieSet = create()
+        assertFalse(
+            trieSet.iterator().hasNext(),
+            "Iterator of an empty set should not have any next elements."
+        )
+        assertFailsWith<NoSuchElementException> {
+            trieSet.iterator().next()
+        }
+        for (element in controlSet) {
+            trieSet += element
+        }
+        val iterator1 = trieSet.iterator()
+        val iterator2 = trieSet.iterator()
+        println("Checking if calling hasNext() changes the state of the iterator...")
+        var counter = 0
+        while (iterator1.hasNext()) {
+            counter++
+            var test = iterator2.next()
+            println(test)
+            assertEquals(
+                test, iterator1.next(),
+                "Calling TrieIterator.hasNext() changes the state of the iterator."
+            )
+        }
+        assertEquals(
+            controlSet.size, counter
+        )
+        val trieIter = trieSet.iterator()
+        println("Checking if the iterator traverses the entire set...")
+        while (trieIter.hasNext()) {
+            controlSet.remove(trieIter.next())
+        }
+        assertTrue(
+            controlSet.isEmpty(),
+            "TrieIterator doesn't traverse the entire set."
+        )
+        assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
+            trieIter.next()
+        }
+        println("All clear!")
+    }
+
+    protected fun doMoreBonusIteratorTest() {
+        implementationTest { create().iterator().hasNext() }
+        implementationTest { create().iterator().next() }
+
+        val controlSet = mutableSetOf<String>()
+        controlSet.add("ahchchgbf")
+        controlSet.add("agdd")
+        controlSet.add("ed")
+        controlSet.add("gabedhgb")
+        controlSet.add("dfc")
+        controlSet.add("eddgcbdgehfdb")
+        controlSet.add("gdfafbddh")
+        controlSet.add("chfdhfehdacad")
+        controlSet.add("ahfhgagdaeh")
+        controlSet.add("bchgfghbb")
+        controlSet.add("bdadebefb")
+        controlSet.add("ehghgdecdc")
+        controlSet.add("ggegedaeh")
+        controlSet.add("e")
+        controlSet.add("cbchaa")
+        println("Control set: $controlSet")
+        val trieSet = create()
+        assertFalse(
+            trieSet.iterator().hasNext(),
+            "Iterator of an empty set should not have any next elements."
+        )
+        assertFailsWith<NoSuchElementException> {
+            trieSet.iterator().next()
+        }
+        for (element in controlSet) {
+            trieSet += element
+        }
+        val iterator1 = trieSet.iterator()
+        val iterator2 = trieSet.iterator()
+        println("Checking if calling hasNext() changes the state of the iterator...")
+        var counter = 0
+        while (iterator1.hasNext()) {
+            counter++
+            var test = iterator2.next()
+            println(test)
+            assertEquals(
+                test, iterator1.next(),
+                "Calling TrieIterator.hasNext() changes the state of the iterator."
+            )
+        }
+        assertEquals(
+            controlSet.size, counter
+        )
+        val trieIter = trieSet.iterator()
+        println("Checking if the iterator traverses the entire set...")
+        while (trieIter.hasNext()) {
+            controlSet.remove(trieIter.next())
+        }
+        assertTrue(
+            controlSet.isEmpty(),
+            "TrieIterator doesn't traverse the entire set."
+        )
+        assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
+            trieIter.next()
+        }
+        println("All clear!")
+    }
+
     protected fun doIteratorRemoveTest() {
         implementationTest { create().iterator().remove() }
         assertFailsWith<IllegalStateException> {
@@ -192,4 +318,235 @@ abstract class AbstractTrieTest {
         }
     }
 
+    protected fun doBonusIteratorRemoveTest() {
+        implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+        val controlSet = mutableSetOf<String>()
+        val toRemove = "abaafegafcaecg"
+        controlSet.add("hhdbadegdfa")
+        controlSet.add("dfegecghadg")
+        controlSet.add("cbacagcha")
+        controlSet.add("c")
+        controlSet.add("abaafegafcaecg")
+        controlSet.add("cgeeeggeb")
+        controlSet.add("bcdgggbbhh")
+        controlSet.add("begbbcahd")
+        controlSet.add("ggdeecbacee")
+        controlSet.add("efege")
+        controlSet.add("geecdccaf")
+        controlSet.add("bae")
+        controlSet.add("cdaggaa")
+        controlSet.add("becch")
+        println("Initial set: $controlSet")
+        val trieSet = create()
+        for (element in controlSet) {
+            trieSet += element
+        }
+        controlSet.remove(toRemove)
+        println("Control set: $controlSet")
+        println("Removing element \"$toRemove\" from trie set through the iterator...")
+        val iterator = trieSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        var counter = trieSet.size
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(
+            0, counter,
+            "TrieIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+        )
+        assertEquals(
+            controlSet.size, trieSet.size,
+            "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                trieSet.contains(element),
+                "Trie set doesn't have the element $element from the control set."
+            )
+        }
+        for (element in trieSet) {
+            assertTrue(
+                controlSet.contains(element),
+                "Trie set has the element $element that is not in control set."
+            )
+        }
+        val iterator1 = trieSet.iterator()
+        while (iterator1.hasNext()) {
+            var test = iterator1.next()
+            println(test)
+            iterator1.remove()
+        }
+        assertEquals(
+            0, trieSet.size,
+            "binarySet isn't empty"
+        )
+        println("All clear!")
+    }
+
+    protected fun doMoreBonusIteratorRemoveTest() {
+        implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+        val controlSet = mutableSetOf<String>()
+        val toRemove = "aafbghaedhca"
+        controlSet.add("aafbghaedhca")
+        controlSet.add("ef")
+        controlSet.add("gf")
+        controlSet.add("chccf")
+        controlSet.add("heahbcbggafgc")
+        controlSet.add("ba")
+        controlSet.add("hebggcedecbh")
+        controlSet.add("bfc")
+        controlSet.add("gaeceed")
+        controlSet.add("cfhefhgb")
+        controlSet.add("ffccfea")
+        controlSet.add("ggdc")
+        controlSet.add("hcbabfddhfdd")
+        controlSet.add("achac")
+        controlSet.add("ad")
+        println("Initial set: $controlSet")
+        val trieSet = create()
+        for (element in controlSet) {
+            trieSet += element
+        }
+        controlSet.remove(toRemove)
+        println("Control set: $controlSet")
+        println("Removing element \"$toRemove\" from trie set through the iterator...")
+        val iterator = trieSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        var counter = trieSet.size
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(
+            0, counter,
+            "TrieIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+        )
+        assertEquals(
+            controlSet.size, trieSet.size,
+            "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                trieSet.contains(element),
+                "Trie set doesn't have the element $element from the control set."
+            )
+        }
+        for (element in trieSet) {
+            assertTrue(
+                controlSet.contains(element),
+                "Trie set has the element $element that is not in control set."
+            )
+        }
+        val iterator1 = trieSet.iterator()
+        while (iterator1.hasNext()) {
+            var test = iterator1.next()
+            println(test)
+            iterator1.remove()
+        }
+        assertEquals(
+            0, trieSet.size,
+            "binarySet isn't empty"
+        )
+        println("All clear!")
+    }
+
+    protected fun doOneMoreBonusIteratorRemoveTest() {
+        implementationTest { create().iterator().remove() }
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+        val controlSet = mutableSetOf<String>()
+        val toRemove = "eda"
+        controlSet.add("ggfebhaeehffgf")
+        controlSet.add("fhdaddhba")
+        controlSet.add("chagfhec")
+        controlSet.add("hfad")
+        controlSet.add("cfdfdh")
+        controlSet.add("gad")
+        controlSet.add("g")
+        controlSet.add("ah")
+        controlSet.add("behchdaa")
+        controlSet.add("eda")
+        controlSet.add("gdgffggagegaf")
+        controlSet.add("eebhdeah")
+        controlSet.add("adcfga")
+        controlSet.add("ghaeegabehb")
+        println("Initial set: $controlSet")
+        val trieSet = create()
+        for (element in controlSet) {
+            trieSet += element
+        }
+        controlSet.remove(toRemove)
+        println("Control set: $controlSet")
+        println("Removing element \"$toRemove\" from trie set through the iterator...")
+        val iterator = trieSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        var counter = trieSet.size
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(
+            0, counter,
+            "TrieIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+        )
+        assertEquals(
+            controlSet.size, trieSet.size,
+            "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                trieSet.contains(element),
+                "Trie set doesn't have the element $element from the control set."
+            )
+        }
+        for (element in trieSet) {
+            assertTrue(
+                controlSet.contains(element),
+                "Trie set has the element $element that is not in control set."
+            )
+        }
+        val iterator1 = trieSet.iterator()
+        while (iterator1.hasNext()) {
+            var test = iterator1.next()
+            println(test)
+            iterator1.remove()
+        }
+        assertEquals(
+            0, trieSet.size,
+            "binarySet isn't empty"
+        )
+        println("All clear!")
+    }
 }

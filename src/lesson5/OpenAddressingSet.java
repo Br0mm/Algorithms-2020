@@ -6,9 +6,7 @@ import java.util.*;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
 
-    enum Deleted {
-        DELETED
-    }
+    private Object DELETED = new Object();
 
     private final int bits;
 
@@ -68,7 +66,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null && current != Deleted.DELETED) {
+        while (current != null && current != DELETED) {
             if (current.equals(t)) {
                 return false;
             }
@@ -101,14 +99,15 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        if (!contains(o)) return false;
         int index = startingIndex(o);
+        int start = index;
         Object current = storage[index];
         while (!current.equals(o)) {
             index = (index + 1) % capacity;
             current = storage[index];
+            if (start == index || current == null) return false;
         }
-        storage[index] = Deleted.DELETED;
+        storage[index] = DELETED;
         size--;
         return true;
     }
@@ -153,7 +152,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         public T next() {
             if (elementsFound == numberOfElements) throw new NoSuchElementException();
             lastNext = null;
-            while (lastNext == null || lastNext == Deleted.DELETED) {
+            while (lastNext == null || lastNext == DELETED) {
                 lastNext = storage[index];
                 index++;
             }
@@ -168,7 +167,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         @Override
         public void remove() {
             if (lastNext == null) throw new IllegalStateException();
-            storage[index - 1] = Deleted.DELETED;
+            storage[index - 1] = DELETED;
             size--;
             lastNext = null;
         }

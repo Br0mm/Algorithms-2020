@@ -17,12 +17,17 @@ class TrieTest : AbstractTrieTest() {
     @Test
     @Tag("7")
     fun iteratorTestJava() {
+        doBonusIteratorTest()
+        doMoreBonusIteratorTest()
         doIteratorTest()
     }
 
     @Test
     @Tag("8")
     fun iteratorRemoveTestJava() {
+        doBonusIteratorRemoveTest()
+        doMoreBonusIteratorRemoveTest()
+        doOneMoreBonusIteratorRemoveTest()
         doIteratorRemoveTest()
     }
 

@@ -18,8 +18,8 @@ class OpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     @Test
     @Tag("7")
     fun removeTestJava() {
-        doRemoveTest()
         doRemoveBonusTest()
+        doRemoveTest()
     }
 
     @Test

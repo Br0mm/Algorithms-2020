@@ -36,7 +36,7 @@ public class JavaGraphTasks {
      * связного графа ровно по одному разу
      */
     /*
-    время O(Edges)
+    время O(Vertices + Edges)
     память S(Edges)
      */
     private static List<List<Graph.Vertex>> miniCycles;

@@ -11,6 +11,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
+        Node parent = null;
         String value = null;
     }
 
@@ -63,6 +64,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 modified = true;
                 Node newChild = new Node();
                 current.children.put(character, newChild);
+                newChild.parent = current;
                 newChild.value = nodeValue.toString();
                 current = newChild;
             }
@@ -80,9 +82,17 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         if (current == null) return false;
         if (current.children.remove((char) 0) != null) {
             size--;
+            removeEmptyBranches(current);
             return true;
         }
         return false;
+    }
+
+    private void removeEmptyBranches(Node current) {
+        if (current.children.size() == 0 && current != root) {
+            current.parent.children.remove(current.value.charAt(current.value.length() - 1));
+            removeEmptyBranches(current.parent);
+        }
     }
 
     /**
@@ -99,25 +109,26 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     }
 
     public class TrieIterator implements Iterator<String> {
-        List<Node> nodes = new ArrayList<>();
-
-        private int index = 0;
+        private Node previousNode;
+        private int elementsFound;
+        private Integer numberOfElements;
+        private Node startNode;
         private Node lastNext;
 
         private TrieIterator() {
-            if (root == null)
-                return;
-            addToWords(root, "");
+            if (root == null) return;
+            elementsFound = 0;
+            numberOfElements = size();
         }
 
-        private void addToWords(Node parent, String partOfWord) {
-            if (parent.children.size() != 0)
-                parent.children.forEach((k, v) -> {
-                    if (k == (char) 0) {
-                        nodes.add(parent);
-                    }
-                    else addToWords(v, partOfWord + k);
-                });
+        private Node findLeftest(Node current) {
+            if (current.children.size() != 0) {
+                for (Map.Entry<Character, Node> entry : current.children.entrySet()) {
+                    if (entry.getKey() == (char) 0) return entry.getValue();
+                    else return findLeftest(entry.getValue());
+                }
+            }
+            return current;
         }
 
         /*
@@ -126,7 +137,39 @@ public class Trie extends AbstractSet<String> implements Set<String> {
          */
         @Override
         public boolean hasNext() {
-            return index < nodes.size();
+            return elementsFound < numberOfElements;
+        }
+
+        /*
+        время O(WordLength)
+        память O(1)
+         */
+        @Override
+        public String next() {
+            if (numberOfElements == null || elementsFound == numberOfElements) throw new NoSuchElementException();
+            elementsFound++;
+            if (startNode == null) {
+                startNode = findLeftest(root);
+                lastNext = startNode;
+                return startNode.parent.value;
+            }
+            previousNode = startNode;
+            boolean visited = true;
+            while (visited || startNode != lastNext) {
+                lastNext = startNode;
+                visited = true;
+                for (Map.Entry<Character, Node> entry : lastNext.parent.children.entrySet()) {
+                    if (!visited) {
+                        startNode = findLeftest(entry.getValue());
+                        if (startNode.value.charAt(startNode.value.length() - 1) == (char) 0) {
+                            lastNext = startNode;
+                            return startNode.parent.value;
+                        }
+                    } else if (entry.getKey() == startNode.value.charAt(startNode.value.length() - 1)) visited = false;
+                }
+                startNode = lastNext.parent;
+            }
+            return lastNext.value;
         }
 
         /*
@@ -134,21 +177,11 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         память O(1)
          */
         @Override
-        public String next() {
-            if (index == nodes.size()) throw new NoSuchElementException();
-            lastNext = nodes.get(index);
-            index++;
-            return lastNext.value;
-        }
-
-        /*
-        время O(LogN)
-        память O(1)
-         */
-        @Override
         public void remove() {
             if (lastNext == null) throw new IllegalStateException();
-            lastNext.children.remove((char) 0);
+            lastNext.parent.children.remove((char) 0);
+            removeEmptyBranches(lastNext.parent);
+            startNode = previousNode;
             size--;
             lastNext = null;
         }

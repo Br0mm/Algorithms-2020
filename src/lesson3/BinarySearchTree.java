@@ -238,14 +238,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 return startNode.value;
             }
             elementsFound++;
-            if (startNode == root) {
-                startNode = findSmallest(root.right);
-                lastNext = startNode;;
-                return startNode.value;
-            }
             if (startNode.right != null) {
-                lastNext = startNode.right;;
-                startNode = startNode.right;
+                lastNext = findSmallest(startNode.right);
+                startNode = lastNext;
                 return startNode.value;
             }
             if (elementsFound != numberOfElements)startNode = BinarySearchTree.this.smallestBiggerParent(startNode);
